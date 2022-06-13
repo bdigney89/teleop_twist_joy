@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<package>
+<package format="3">
   <name>teleop_twist_joy</name>
   <version>0.1.3</version>
   <description>Generic joystick teleop for twist robots.</description>
