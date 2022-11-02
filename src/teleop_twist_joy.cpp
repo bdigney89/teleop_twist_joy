@@ -187,15 +187,10 @@ void TeleopTwistJoy::Impl::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg
   }
   else
   {
-    // When enable button is released, immediately send a single no-motion command
-    // in order to stop the robot.
-    if (!sent_disable_msg)
-    {
-      // Initializes with zeros by default.
-      geometry_msgs::Twist cmd_vel_msg;
-      cmd_vel_pub.publish(cmd_vel_msg);
-      sent_disable_msg = true;
-    }
+    // Initializes with zeros by default.
+    geometry_msgs::Twist cmd_vel_msg;
+    cmd_vel_pub.publish(cmd_vel_msg);
+    sent_disable_msg = true;
   }
 }
 
