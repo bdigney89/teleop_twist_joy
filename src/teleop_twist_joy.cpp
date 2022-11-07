@@ -55,8 +55,6 @@ struct TeleopTwistJoy::Impl
 
   std::map<std::string, int> axis_angular_map;
   std::map< std::string, std::map<std::string, double> > scale_angular_map;
-
-  bool sent_disable_msg;
 };
 
 /**
@@ -120,8 +118,6 @@ TeleopTwistJoy::TeleopTwistJoy(ros::NodeHandle* nh, ros::NodeHandle* nh_param)
     ROS_INFO_COND_NAMED(pimpl_->enable_turbo_button >= 0, "TeleopTwistJoy",
         "Turbo for angular axis %s is scale %f.", it->first.c_str(), pimpl_->scale_angular_map["turbo"][it->first]);
   }
-
-  pimpl_->sent_disable_msg = false;
 }
 
 double getVal(const sensor_msgs::Joy::ConstPtr& joy_msg, const std::map<std::string, int>& axis_map,
@@ -169,7 +165,6 @@ void TeleopTwistJoy::Impl::sendCmdVelMsg(const sensor_msgs::Joy::ConstPtr& joy_m
   }
 
   cmd_vel_pub.publish(cmd_vel_msg);
-  sent_disable_msg = false;
 }
 
 void TeleopTwistJoy::Impl::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg)
@@ -187,15 +182,9 @@ void TeleopTwistJoy::Impl::joyCallback(const sensor_msgs::Joy::ConstPtr& joy_msg
   }
   else
   {
-    // When enable button is released, immediately send a single no-motion command
-    // in order to stop the robot.
-    if (!sent_disable_msg)
-    {
-      // Initializes with zeros by default.
-      geometry_msgs::Twist cmd_vel_msg;
-      cmd_vel_pub.publish(cmd_vel_msg);
-      sent_disable_msg = true;
-    }
+    // Initializes with zeros by default.
+    geometry_msgs::Twist cmd_vel_msg;
+    cmd_vel_pub.publish(cmd_vel_msg);
   }
 }
 
