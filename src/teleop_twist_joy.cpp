@@ -52,9 +52,11 @@ struct TeleopTwistJoy::Impl
 
   std::map<std::string, int> axis_linear_map;
   std::map< std::string, std::map<std::string, double> > scale_linear_map;
+  int linear_direction;
 
   std::map<std::string, int> axis_angular_map;
   std::map< std::string, std::map<std::string, double> > scale_angular_map;
+  int angular_direction;
 };
 
 /**
@@ -76,18 +78,21 @@ TeleopTwistJoy::TeleopTwistJoy(ros::NodeHandle* nh, ros::NodeHandle* nh_param)
   {
     nh_param->getParam("scale_linear", pimpl_->scale_linear_map["normal"]);
     nh_param->getParam("scale_linear_turbo", pimpl_->scale_linear_map["turbo"]);
+    nh_param->getParam("linear_direction", pimpl_->linear_direction);
   }
   else
   {
     nh_param->param<int>("axis_linear", pimpl_->axis_linear_map["x"], 1);
     nh_param->param<double>("scale_linear", pimpl_->scale_linear_map["normal"]["x"], 0.5);
     nh_param->param<double>("scale_linear_turbo", pimpl_->scale_linear_map["turbo"]["x"], 1.0);
+    nh_param->param<int>("linear_direction", pimpl_->linear_direction, 1);
   }
 
   if (nh_param->getParam("axis_angular", pimpl_->axis_angular_map))
   {
     nh_param->getParam("scale_angular", pimpl_->scale_angular_map["normal"]);
     nh_param->getParam("scale_angular_turbo", pimpl_->scale_angular_map["turbo"]);
+    nh_param->getParam("angular_direction", pimpl_->angular_direction);
   }
   else
   {
@@ -95,6 +100,7 @@ TeleopTwistJoy::TeleopTwistJoy(ros::NodeHandle* nh, ros::NodeHandle* nh_param)
     nh_param->param<double>("scale_angular", pimpl_->scale_angular_map["normal"]["yaw"], 0.5);
     nh_param->param<double>("scale_angular_turbo",
         pimpl_->scale_angular_map["turbo"]["yaw"], pimpl_->scale_angular_map["normal"]["yaw"]);
+    nh_param->param<int>("angular_direction", pimpl_->angular_direction, 1);
   }
 
   ROS_INFO_NAMED("TeleopTwistJoy", "Teleop enable button %i.", pimpl_->enable_button);
@@ -148,6 +154,8 @@ void TeleopTwistJoy::Impl::sendCmdVelMsg(const sensor_msgs::Joy::ConstPtr& joy_m
   cmd_vel_msg.angular.y = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "pitch");
   cmd_vel_msg.angular.x = getVal(joy_msg, axis_angular_map, scale_angular_map[which_map], "roll");
 
+  cmd_vel_msg.linear.x *= linear_direction;
+  cmd_vel_msg.angular.z *= angular_direction;
   if (cmd_vel_msg.linear.x < 0.0)
   {
     cmd_vel_msg.angular.z *= -1;
