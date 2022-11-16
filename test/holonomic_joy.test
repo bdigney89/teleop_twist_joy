@@ -7,8 +7,10 @@
       scale_linear:
         x: 1.0
         y: 4.0
+      linear_direction: 1
       axis_angular: 0
       scale_angular: 3.0
+      angular_direction: 1
       enable_button: 0
     </rosparam>
   </node>
